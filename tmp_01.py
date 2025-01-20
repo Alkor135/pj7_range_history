@@ -6,7 +6,7 @@ if __name__ == '__main__':
     chart = Chart()
     
     df = pd.read_csv('ohlcv.csv')
+    print(df)
     chart.set(df)
     
     chart.show(block=True)
-    

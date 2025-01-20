@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # Путь к папке с Parquet-файлами
     parquet_folder = Path(r'c:\data_quote\parquet_finam_RTS_tick')
     # Размерность Range баров
-    range_size = 1000
+    range_size = 300
 
     # Список для хранения путей ко всем Parquet-файлам
     parquet_files = []
@@ -178,5 +178,7 @@ if __name__ == "__main__":
     
     # chart.show(block=True)
 
-    # Отображение графика
-    plot_candlestick_chart_plotly(range_bars_df)
+    # # Отображение графика
+    # plot_candlestick_chart_plotly(range_bars_df)
+
+    range_bars_df.to_csv('cache.csv', index=False)
