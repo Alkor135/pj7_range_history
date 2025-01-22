@@ -10,11 +10,13 @@ def create_range_bars(tick_df, range_size=100):
     Создает Range бары из тикового датафрейма.
 
     Parameters:
-        tick_df (pd.DataFrame): Датафрейм с тиковыми данными (колонки: 'datetime', '<LAST>', '<VOL>').
+        tick_df (pd.DataFrame): Датафрейм с тиковыми данными 
+        (колонки: 'datetime', '<LAST>', '<VOL>').
         range_size (float): Размер диапазона для Range баров.
 
     Returns:
-        pd.DataFrame: Датафрейм с Range барами (колонки: 'datetime', 'open', 'high', 'low', 'close', 'vol').
+        pd.DataFrame: Датафрейм с Range барами 
+        (колонки: 'datetime', 'open', 'high', 'low', 'close', 'vol').
     """
     # Инициализация переменных
     range_bars = []
