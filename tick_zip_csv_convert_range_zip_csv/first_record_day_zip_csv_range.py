@@ -1,11 +1,13 @@
+"""
+Создает дата фрейм range баров с зазором и записывает в csv со сжатием zip
+"""
+
 from pathlib import Path
 from datetime import datetime
-import sqlite3
+import zipfile
 
 import pandas as pd
 import numpy as np
-
-import sqlighter3
 
 
 def file_select(folder_path):
@@ -125,38 +127,33 @@ def create_range_bars(tick_df, range_size, tick_size=10):
     return df
 
 
-def zip_csv_convert_to_db(connection, cursor, file_path, range_size):
-    # Чтение данных из файла в DF
-    df_tick = pd.read_csv(file_path, compression='zip')  # , parse_dates=['datetime']
-
-    # Создание DF c range барами
-    df = create_range_bars(df_tick, range_size)
+def tick_zip_csv_convert_range_zip_csv(path_tick, path_range, range_size=300):
+    """  """
+    # Нахождение файла с наименьшей датой
+    tick_file = file_select(path_tick)
+    # Чтение тиковых данных из файла в DF
+    df_tick = pd.read_csv(tick_file, compression='zip')
+    # Создание DF с range барами
+    df = create_range_bars(df_tick, range_size, tick_size=10)
     print(df)
 
-    # Перебираем строки DF для занесения в БД
-    for row in df.itertuples():
-        sqlighter3.add_row(
-            connection, cursor, row[1], row[2], row[3], row[4], row[5], row[6], row[7]
-        )
+    with zipfile.ZipFile(path_range, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        with zf.open('range.csv', mode="w") as buffer:
+            df.to_csv(buffer, index=False)
 
-    print(f'Файл {file_path} записан в БД')
+    print(f'Файл {path_range} записан.')
 
 
 if __name__ == "__main__":
     # Параметры
-    tiker = 'RTS'  # Тикер
-    path_zip = Path(r"C:\data_quote\data_finam_RTS_tick_zip")  # Путь к папке с zip архивами csv
-    path_db = Path(fr'c:\Users\Alkor\gd\data_quote_db\{tiker}_Range.db')
-    range_size = 300
+    ticker = 'RTS'  # Тикер
+    range_size = 300  # Приблизительное количество range баров в день (влияет на размерность)
+    # Путь к папке с zip архивами csv ticks
+    path_tick = Path(r"C:\data_quote\data_finam_RTS_tick_zip")
+    path_range = Path(fr'c:\Users\Alkor\gd\data_quote_zip\{ticker}_range.zip')
     # --------------------------------------------------------------------------------------------
 
-    connection = sqlite3.connect(path_db, check_same_thread=True)
-    cursor = connection.cursor()
-
-    if not sqlighter3.non_empty_table_futures(connection, cursor):  # Если таблица Range пустая
-        file_path = file_select(path_zip)
-        zip_csv_convert_to_db(connection, cursor, file_path, range_size)
-
-    # Закрываем курсор и соединение
-    cursor.close()
-    connection.close()
+    if not path_range.exists():
+        tick_zip_csv_convert_range_zip_csv(path_tick, path_range, range_size)
+    else:
+        print('Файл уже существует. Прочти README.')
